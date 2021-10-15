@@ -1,0 +1,60 @@
+{
+    "name": "E-Certinstitute",
+    "version": "1.0.0",
+    "client": {
+        "organization": "institute",
+        "connection": {
+            "timeout": {
+                "peer": {
+                    "endorser": "300"
+                }
+            }
+        }
+    },
+    "organizations": {
+        "institute": {
+            "mspid": "InstituteMSP",
+            "peers": [
+                "peer0.institute.example.com",
+                "peer1.institute.example.com"
+            ],
+            "certificateAuthorities": [
+                "ca.institute.example.com"
+            ]
+        }
+    },
+    "peers": {
+        "peer0.institute.example.com": {
+            "url": "grpcs://localhost:10052",
+            "tlsCACerts": {
+                "pem": "-----BEGIN CERTIFICATE-----\nMIICFjCCAb2gAwIBAgIUNdmHEUPMi4Coa9ZfDv220h0Q7zowCgYIKoZIzj0EAwIw\naDELMAkGA1UEBhMCVVMxFzAVBgNVBAgTDk5vcnRoIENhcm9saW5hMRQwEgYDVQQK\nEwtIeXBlcmxlZGdlcjEPMA0GA1UECxMGRmFicmljMRkwFwYDVQQDExBmYWJyaWMt\nY2Etc2VydmVyMB4XDTIxMDgyMTE4MzMwMFoXDTM2MDgxNzE4MzMwMFowaDELMAkG\nA1UEBhMCVVMxFzAVBgNVBAgTDk5vcnRoIENhcm9saW5hMRQwEgYDVQQKEwtIeXBl\ncmxlZGdlcjEPMA0GA1UECxMGRmFicmljMRkwFwYDVQQDExBmYWJyaWMtY2Etc2Vy\ndmVyMFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAErLejEeUsG8UwjLkBIKdCb9ZB\nPMDjsR/vLVhdSRk/mz+718xqEOUT8JK3VUhiC0Img2iFuKdqPKt6b2wTgpSHkqNF\nMEMwDgYDVR0PAQH/BAQDAgEGMBIGA1UdEwEB/wQIMAYBAf8CAQEwHQYDVR0OBBYE\nFCOJ+v7wv9hj3FsvOlyMw/tePNCtMAoGCCqGSM49BAMCA0cAMEQCIB3lj0GMT5gP\nZMpANCNE/j2v0XP+Qsqfsw8RBozNMqX/AiB/9cVJvkIwMWVz1MBO16XjBh4c75A3\npnFDLiar7icTDQ==\n-----END CERTIFICATE-----\n"
+            },
+            "grpcOptions": {
+                "ssl-target-name-override": "peer0.institute.example.com",
+                "hostnameOverride": "peer0.institute.example.com"
+            }
+        },
+        "peer1.institute.example.com": {
+            "url": "grpcs://localhost:10054",
+            "tlsCACerts": {
+                "pem": "-----BEGIN CERTIFICATE-----\nMIICFjCCAb2gAwIBAgIUNdmHEUPMi4Coa9ZfDv220h0Q7zowCgYIKoZIzj0EAwIw\naDELMAkGA1UEBhMCVVMxFzAVBgNVBAgTDk5vcnRoIENhcm9saW5hMRQwEgYDVQQK\nEwtIeXBlcmxlZGdlcjEPMA0GA1UECxMGRmFicmljMRkwFwYDVQQDExBmYWJyaWMt\nY2Etc2VydmVyMB4XDTIxMDgyMTE4MzMwMFoXDTM2MDgxNzE4MzMwMFowaDELMAkG\nA1UEBhMCVVMxFzAVBgNVBAgTDk5vcnRoIENhcm9saW5hMRQwEgYDVQQKEwtIeXBl\ncmxlZGdlcjEPMA0GA1UECxMGRmFicmljMRkwFwYDVQQDExBmYWJyaWMtY2Etc2Vy\ndmVyMFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAErLejEeUsG8UwjLkBIKdCb9ZB\nPMDjsR/vLVhdSRk/mz+718xqEOUT8JK3VUhiC0Img2iFuKdqPKt6b2wTgpSHkqNF\nMEMwDgYDVR0PAQH/BAQDAgEGMBIGA1UdEwEB/wQIMAYBAf8CAQEwHQYDVR0OBBYE\nFCOJ+v7wv9hj3FsvOlyMw/tePNCtMAoGCCqGSM49BAMCA0cAMEQCIB3lj0GMT5gP\nZMpANCNE/j2v0XP+Qsqfsw8RBozNMqX/AiB/9cVJvkIwMWVz1MBO16XjBh4c75A3\npnFDLiar7icTDQ==\n-----END CERTIFICATE-----\n"
+            },
+            "grpcOptions": {
+                "ssl-target-name-override": "peer1.institute.example.com",
+                "hostnameOverride": "peer1.institute.example.com"
+            }
+        }
+    },
+    "certificateAuthorities": {
+        "ca.orginstitute.example.com": {
+            "url": "https://localhost:10051",
+            "caName": "ca-institute",
+            "tlsCACerts": {
+                "pem": "-----BEGIN CERTIFICATE-----\nMIICFjCCAb2gAwIBAgIUNdmHEUPMi4Coa9ZfDv220h0Q7zowCgYIKoZIzj0EAwIw\naDELMAkGA1UEBhMCVVMxFzAVBgNVBAgTDk5vcnRoIENhcm9saW5hMRQwEgYDVQQK\nEwtIeXBlcmxlZGdlcjEPMA0GA1UECxMGRmFicmljMRkwFwYDVQQDExBmYWJyaWMt\nY2Etc2VydmVyMB4XDTIxMDgyMTE4MzMwMFoXDTM2MDgxNzE4MzMwMFowaDELMAkG\nA1UEBhMCVVMxFzAVBgNVBAgTDk5vcnRoIENhcm9saW5hMRQwEgYDVQQKEwtIeXBl\ncmxlZGdlcjEPMA0GA1UECxMGRmFicmljMRkwFwYDVQQDExBmYWJyaWMtY2Etc2Vy\ndmVyMFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAErLejEeUsG8UwjLkBIKdCb9ZB\nPMDjsR/vLVhdSRk/mz+718xqEOUT8JK3VUhiC0Img2iFuKdqPKt6b2wTgpSHkqNF\nMEMwDgYDVR0PAQH/BAQDAgEGMBIGA1UdEwEB/wQIMAYBAf8CAQEwHQYDVR0OBBYE\nFCOJ+v7wv9hj3FsvOlyMw/tePNCtMAoGCCqGSM49BAMCA0cAMEQCIB3lj0GMT5gP\nZMpANCNE/j2v0XP+Qsqfsw8RBozNMqX/AiB/9cVJvkIwMWVz1MBO16XjBh4c75A3\npnFDLiar7icTDQ==\n-----END CERTIFICATE-----\n"
+            },
+            "httpOptions": {
+                "verify": false
+            }
+        }
+    }
+}

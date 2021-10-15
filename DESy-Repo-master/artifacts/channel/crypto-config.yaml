@@ -1,0 +1,73 @@
+
+OrdererOrgs:
+  # ---------------------------------------------------------------------------
+  # Orderer
+  # ---------------------------------------------------------------------------
+  - Name: Orderer
+    Domain: example.com
+    EnableNodeOUs: true
+
+    # ---------------------------------------------------------------------------
+    # "Specs" - See PeerOrgs below for complete description
+    # ---------------------------------------------------------------------------
+    Specs:
+      - Hostname: orderer
+        SANS:
+            - "localhost"
+            - "127.0.0.1"
+
+# ---------------------------------------------------------------------------
+# "PeerOrgs" - Definition of organizations managing peer nodes
+# ---------------------------------------------------------------------------
+PeerOrgs:
+  # ---------------------------------------------------------------------------
+  # Institute1
+  # ---------------------------------------------------------------------------
+  - Name: Institute1
+    Domain: institute1.example.com
+    EnableNodeOUs: true
+
+    Template:
+      Count: 2
+      SANS:
+        - "localhost"
+
+    Users:
+      Count: 1
+
+  - Name: Institute2
+    Domain: institute2.example.com
+    EnableNodeOUs: true
+
+    Template:
+      Count: 2
+      SANS:
+        - "localhost"
+
+    Users:
+      Count: 1
+    
+  
+  - Name: Institute3
+    Domain: institute3.example.com
+    EnableNodeOUs: true
+
+    Template:
+      Count: 2
+      SANS:
+        - "localhost"
+
+    Users:
+      Count: 1
+
+  - Name: Manageral
+    Domain: manageral.example.com
+    EnableNodeOUs: true
+
+    Template:
+      Count: 2
+      SANS:
+        - "localhost"
+
+    Users:
+      Count: 1

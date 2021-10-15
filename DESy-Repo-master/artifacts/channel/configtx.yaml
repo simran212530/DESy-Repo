@@ -1,0 +1,294 @@
+
+Organizations:
+    - &OrdererOrg
+        Name: OrdererOrg
+
+        ID: OrdererMSP
+
+        MSPDir: crypto-config/ordererOrganizations/example.com/msp
+
+
+        Policies:
+            Readers:
+                Type: Signature
+                Rule: "OR('OrdererMSP.member')"
+            Writers:
+                Type: Signature
+                Rule: "OR('OrdererMSP.member')"
+            Admins:
+                Type: Signature
+                Rule: "OR('OrdererMSP.admin')"
+
+    - &Manageral
+
+        Name: ManageralMSP
+
+        ID: ManageralMSP
+
+        MSPDir: crypto-config/peerOrganizations/manageral.example.com/msp
+
+
+        Policies:
+            Readers:
+                Type: Signature
+                Rule: "OR('ManageralMSP.admin', 'ManageralMSP.peer', 'ManageralMSP.client')"
+            Writers:
+                Type: Signature
+                Rule: "OR('ManageralMSP.admin', 'ManageralMSP.client')"
+            Admins:
+                Type: Signature
+                Rule: "OR('ManageralMSP.admin')"
+            Endorsement:
+                Type: Signature
+                Rule: "OR('ManageralMSP.peer')"
+
+        AnchorPeers:
+
+            - Host: peer0.manageral.example.com
+              Port: 13051
+    
+
+    - &Institute1
+        Name: Institute1MSP
+
+        ID: Institute1MSP
+
+        MSPDir: crypto-config/peerOrganizations/institute1.example.com/msp
+
+        Policies:
+            Readers:
+                Type: Signature
+                Rule: "OR('Institute1MSP.admin', 'Institute1MSP.peer', 'Institute1MSP.client')"
+            Writers:
+                Type: Signature
+                Rule: "OR('Institute1MSP.admin', 'Institute1MSP.client')"
+            Admins:
+                Type: Signature
+                Rule: "OR('Institute1MSP.admin')"
+            Endorsement:
+                Type: Signature
+                Rule: "OR('Institute1MSP.peer')"
+        
+        AnchorPeers:
+            - Host: peer0.institute1.example.com
+              Port: 7051
+
+    - &Institute2
+        Name: Institute2MSP
+
+        ID: Institute2MSP
+
+        MSPDir: crypto-config/peerOrganizations/institute2.example.com/msp
+
+
+        Policies:
+            Readers:
+                Type: Signature
+                Rule: "OR('Institute2MSP.admin', 'Institute2MSP.peer', 'Institute2MSP.client')"
+            Writers:
+                Type: Signature
+                Rule: "OR('Institute2MSP.admin', 'Institute2MSP.client')"
+            Admins:
+                Type: Signature
+                Rule: "OR('Institute2MSP.admin')"
+            Endorsement:
+                Type: Signature
+                Rule: "OR('Institute2MSP.peer')"
+
+        AnchorPeers:
+
+            - Host: peer0.institute2.example.com
+              Port: 9051
+
+    - &Institute3
+        Name: Institute3MSP
+
+        ID: Institute3MSP
+
+        MSPDir: crypto-config/peerOrganizations/institute3.example.com/msp
+
+
+        Policies:
+            Readers:
+                Type: Signature
+                Rule: "OR('Institute3MSP.admin', 'Institute3MSP.peer', 'Institute3MSP.client')"
+            Writers:
+                Type: Signature
+                Rule: "OR('Institute3MSP.admin', 'Institute3MSP.client')"
+            Admins:
+                Type: Signature
+                Rule: "OR('Institute3MSP.admin')"
+            Endorsement:
+                Type: Signature
+                Rule: "OR('Institute3MSP.peer')"
+
+        AnchorPeers:
+
+            - Host: peer0.institute3.example.com
+              Port: 11051
+
+    
+              
+
+
+Capabilities:
+
+    Channel: &ChannelCapabilities
+
+        V2_0: true
+
+
+    Orderer: &OrdererCapabilities
+
+        V2_0: true
+
+
+    Application: &ApplicationCapabilities
+
+        V2_0: true
+
+
+Application: &ApplicationDefaults
+
+
+    Organizations:
+
+
+    Policies:
+        Readers:
+            Type: ImplicitMeta
+            Rule: "ANY Readers"
+        Writers:
+            Type: ImplicitMeta
+            Rule: "ANY Writers"
+        Admins:
+            Type: ImplicitMeta
+            Rule: "MAJORITY Admins"
+        LifecycleEndorsement:
+            Type: ImplicitMeta
+            Rule: "MAJORITY Endorsement"
+        Endorsement:
+            Type: ImplicitMeta
+            Rule: "MAJORITY Endorsement"
+
+    Capabilities:
+        <<: *ApplicationCapabilities
+
+
+Orderer: &OrdererDefaults
+
+    OrdererType: etcdraft
+
+    EtcdRaft:
+        Consenters:
+        - Host: orderer.example.com
+          Port: 7050
+          ClientTLSCert: crypto-config/ordererOrganizations/example.com/orderers/orderer.example.com/tls/server.crt
+          ServerTLSCert: crypto-config/ordererOrganizations/example.com/orderers/orderer.example.com/tls/server.crt
+
+    Addresses:
+        - orderer.example.com:7050
+
+    BatchTimeout: 2s
+
+    BatchSize:
+
+        MaxMessageCount: 10
+
+
+        AbsoluteMaxBytes: 99 MB
+
+
+        PreferredMaxBytes: 512 KB
+
+    Organizations:
+
+
+    Policies:
+        Readers:
+            Type: ImplicitMeta
+            Rule: "ANY Readers"
+        Writers:
+            Type: ImplicitMeta
+            Rule: "ANY Writers"
+        Admins:
+            Type: ImplicitMeta
+            Rule: "MAJORITY Admins"
+        BlockValidation:
+            Type: ImplicitMeta
+            Rule: "ANY Writers"
+
+
+Channel: &ChannelDefaults
+
+    Policies:
+        Readers:
+            Type: ImplicitMeta
+            Rule: "ANY Readers"
+        Writers:
+            Type: ImplicitMeta
+            Rule: "ANY Writers"
+        Admins:
+            Type: ImplicitMeta
+            Rule: "MAJORITY Admins"
+
+
+    Capabilities:
+        <<: *ChannelCapabilities
+
+
+Profiles:
+
+    btechcse:
+        Consortium: SampleConsortium
+        <<: *ChannelDefaults
+        Application:
+            <<: *ApplicationDefaults
+            Organizations:
+                - *Manageral
+                - *Institute1
+                - *Institute2
+                - *Institute3
+            Capabilities:
+                <<: *ApplicationCapabilities
+    
+    btechece:
+        Consortium: SampleConsortium
+        <<: *ChannelDefaults
+        Application:
+            <<: *ApplicationDefaults
+            Organizations:
+                - *Manageral
+                - *Institute1
+                - *Institute2
+                - *Institute3
+            Capabilities:
+                <<: *ApplicationCapabilities
+
+    OrdererGenesis:
+        <<: *ChannelDefaults
+        Capabilities:
+            <<: *ChannelCapabilities
+        Orderer:
+            <<: *OrdererDefaults
+            OrdererType: etcdraft
+            EtcdRaft:
+                Consenters:
+                - Host: orderer.example.com
+                  Port: 7050
+                  ClientTLSCert: crypto-config/ordererOrganizations/example.com/orderers/orderer.example.com/tls/server.crt
+                  ServerTLSCert: crypto-config/ordererOrganizations/example.com/orderers/orderer.example.com/tls/server.crt
+            Addresses:
+                - orderer.example.com:7050
+
+            Organizations:
+            - *OrdererOrg
+            Capabilities:
+                <<: *OrdererCapabilities
+        Consortiums:
+            SampleConsortium:
+                Organizations:
+                - *Manageral
+                - *Institute1
+                - *Institute2
+                - *Institute3

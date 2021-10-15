@@ -1,0 +1,47 @@
+[
+    {
+        "name": "application_pool",
+        "policy": "OR('ManageralMSP.member','Institute1MSP.member')",
+        "requiredPeerCount": 0,
+        "maxPeerCount": 7,
+        "blockToLive": 1000000,
+        "memberOnlyRead": true,
+        "memberOnlyWrite": true
+    },
+    {
+        "name": "prospective_students",
+        "policy": "OR('ManageralMSP.member','Institute1MSP.member')",
+        "requiredPeerCount": 0,
+        "maxPeerCount": 7,
+        "blockToLive": 1000000,
+        "memberOnlyRead": true,
+        "memberOnlyWrite": true
+    },
+    {
+        "name": "institute1_students",
+        "policy": "OR('ManageralMSP.member','Institute1MSP.member')",
+        "requiredPeerCount": 0,
+        "maxPeerCount": 7,
+        "blockToLive": 1000000,
+        "memberOnlyRead": true,
+        "memberOnlyWrite": true
+    },
+    {
+        "name": "institute2_students",
+        "policy": "OR('ManageralMSP.member', 'Institute2MSP.member','Institute1MSP.member')",
+        "requiredPeerCount": 0,
+        "maxPeerCount": 7,
+        "blockToLive": 1000000,
+        "memberOnlyRead": true,
+        "memberOnlyWrite": true
+    },
+    {
+        "name": "institute3_students",
+        "policy": "OR('ManageralMSP.member', 'Institute3MSP.member','Institute1MSP.member')",
+        "requiredPeerCount": 0,
+        "maxPeerCount": 7,
+        "blockToLive": 1000000,
+        "memberOnlyRead": true,
+        "memberOnlyWrite": true
+    } 
+]

@@ -1,0 +1,20 @@
+doctype html
+html
+ head
+  title E_certs 
+  body
+   h1 Add New Organization
+
+   br
+   br
+   br
+   form(method='POST' action='/newadd/')
+    label() orgName
+    input(type='text', placeholder='Organization Name' name='orgName')
+    label() Port Number 
+    input(type='text', placeholder='Port Number' name='CAPORT')
+    
+    br
+    br
+    
+    input(type='Submit' value='Submit')

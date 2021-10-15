@@ -1,0 +1,34 @@
+doctype html
+html
+ head
+  title DESy
+  body
+   h1 Update Criteria 
+   
+   br
+   br
+   br
+   form(method='POST' action='/updateAdmissionCriteria')
+    label() Institute ID
+    input(type='text', placeholder='Institute ID' name='instituteId')
+    br
+    br
+    label() Institute Name 
+    input(type='text', placeholder='Institute Name' name='instituteName')
+    br
+    br
+    label() Degree 
+    input(type='text', placeholder='Degree' name='degree')
+    br
+    br
+    label() Field to be Changed
+    input(type='text', placeholder='Field to be Changed' name='fieldToChange')
+    br
+    br
+    label() change 
+    input(type='text', placeholder='change' name='change')
+    br
+    br
+    
+    
+    input(type='Submit' value='Submit')

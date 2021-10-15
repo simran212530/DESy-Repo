@@ -1,0 +1,22 @@
+
+Organizations:
+    - &Institute
+        Name: InstituteMSP
+
+        ID: InstituteMSP
+
+        MSPDir: ../artifacts/channel/institute/crypto-config-ca/peerOrganizations/institute.example.com/msp
+
+        Policies:
+            Readers:
+                Type: Signature
+                Rule: "OR('InstituteMSP.admin', 'InstituteMSP.peer', 'InstituteMSP.client')"
+            Writers:
+                Type: Signature
+                Rule: "OR('InstituteMSP.admin', 'InstituteMSP.client')"
+            Admins:
+                Type: Signature
+                Rule: "OR('InstituteMSP.admin')"
+            Endorsement:
+                Type: Signature
+                Rule: "OR('InstituteMSP.peer')"

@@ -1,0 +1,62 @@
+{
+    "name": "first-network-org${ORG}",
+    "version": "1.0.0",
+    "client": {
+        "organization": "Institute${ORG}",
+        "connection": {
+            "timeout": {
+                "peer": {
+                    "endorser": "300"
+                }
+            }
+        }
+    },
+    "organizations": {
+        "Institute${ORG}": {
+            "mspid": "Institute${ORG}MSP",
+            "peers": [
+                "peer0.institute${ORG}.example.com",
+                "peer1.institute${ORG}.example.com"
+            ],
+            "certificateAuthorities": [
+                "ca.institute${ORG}.example.com"
+            ]
+        }
+    },
+    "peers": {
+        "peer0.institute${ORG}.example.com": {
+            "url": "grpcs://localhost:${P0PORT}",
+            "tlsCACerts": {
+                "pem": "${PEERPEM}"
+            },
+            "grpcOptions": {
+                "ssl-target-name-override": "peer0.institute${ORG}.example.com",
+                "hostnameOverride": "peer0.institute${ORG}.example.com"
+            }
+        },
+	    "peer1.institute${ORG}.example.com": {
+            "url": "grpcs://localhost:${P0PORT1}",
+            "tlsCACerts": {
+                "pem": "${PEERPEM1}"
+            },
+            "grpcOptions": {
+                "ssl-target-name-override": "peer1.institute${ORG}.example.com",
+                "hostnameOverride": "peer1.institute${ORG}.example.com"
+            }
+        }
+
+	
+    },
+    "certificateAuthorities": {
+        "ca.institute${ORG}.example.com": {
+            "url": "https://localhost:${CAPORT}",
+            "caName": "ca.institute${ORG}.example.com",
+            "tlsCACerts": {
+                "pem": "${CAPEM}"
+            },
+            "httpOptions": {
+                "verify": false
+            }
+        }
+    }
+}

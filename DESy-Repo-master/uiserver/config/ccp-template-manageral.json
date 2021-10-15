@@ -1,0 +1,62 @@
+{
+    "name": "first-network-org",
+    "version": "1.0.0",
+    "client": {
+        "organization": "Manageral",
+        "connection": {
+            "timeout": {
+                "peer": {
+                    "endorser": "300"
+                }
+            }
+        }
+    },
+    "organizations": {
+        "Manageral": {
+            "mspid": "ManageralMSP",
+            "peers": [
+                "peer0.manageral.example.com",
+                "peer1.manageral.example.com"
+            ],
+            "certificateAuthorities": [
+                "ca.manageral.example.com"
+            ]
+        }
+    },
+    "peers": {
+        "peer0.manageral.example.com": {
+            "url": "grpcs://localhost:${P0PORT}",
+            "tlsCACerts": {
+                "pem": "${PEERPEM}"
+            },
+            "grpcOptions": {
+                "ssl-target-name-override": "peer0.manageral.example.com",
+                "hostnameOverride": "peer0.manageral.example.com"
+            }
+        },
+	    "peer1.manageral.example.com": {
+            "url": "grpcs://localhost:${P0PORT1}",
+            "tlsCACerts": {
+                "pem": "${PEERPEM1}"
+            },
+            "grpcOptions": {
+                "ssl-target-name-override": "peer1.manageral.example.com",
+                "hostnameOverride": "peer1.manageral.example.com"
+            }
+        }
+
+	
+    },
+    "certificateAuthorities": {
+        "ca.manageral.example.com": {
+            "url": "https://localhost:${CAPORT}",
+            "caName": "ca.manageral.example.com",
+            "tlsCACerts": {
+                "pem": "${CAPEM}"
+            },
+            "httpOptions": {
+                "verify": false
+            }
+        }
+    }
+}

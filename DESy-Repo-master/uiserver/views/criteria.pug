@@ -1,0 +1,49 @@
+doctype html
+html
+ head
+  title DESy
+  body
+   h1 Add Criteria 
+   
+   br
+   br
+   br
+   form(method='POST' action='/addAdmissionCriteria')
+    label() Institute ID
+    input(type='text', placeholder='Institute ID' name='instituteId')
+    br
+    br
+    label() Institute Name 
+    input(type='text', placeholder='Institute Name' name='instituteName')
+    br
+    br
+    label() Degree 
+    input(type='text', placeholder='Degree' name='degree')
+    br
+    br
+    label() Stream
+    input(type='text', placeholder='Stream' name='stream')
+    br
+    br
+    label() Max Seat Count
+    input(type='text', placeholder='Max Seat Count' name='maxSeatCount')
+    br
+    br
+    label() Minimum Age
+    input(type='text', placeholder='Minimum Age' name='minimumAge')
+    br
+    br
+    label() Minimum Rank Exam
+    input(type='text', placeholder='Minimum Rank Exam' name='minimumRankExam')
+    br
+    br
+    label() Minimum Board Percent
+    input(type='text', placeholder='Minimum Board Percent' name='minimumBoardPercentage')
+    br
+    br
+    label() Extras
+    input(type='text', placeholder='Extras' name='extras')
+    br
+    br
+    
+    input(type='Submit' value='Submit')
