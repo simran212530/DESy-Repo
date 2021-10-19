@@ -27,6 +27,12 @@ app.get('/registration', function (req, res) {
 
 });
 
+app.get('/studentregistration', function (req, res) {
+
+    res.render('studentregistration');
+
+});
+
 app.get('/addCriteria', function (req, res) {
 
     res.render('criteria');
@@ -514,6 +520,144 @@ app.post('/applicationtransfer', urlencodedParser, async function (req, res) {
 });
 
 
+// Register and enroll user
+app.post('/register', async function (req, res) {
+    var username = req.body.username;
+    var role = req.body.role;
+    var orgName = req.body.orgname;
+    // logger.debug('End point : /users');
+    // logger.debug('User name : ' + username);
+    // logger.debug('Org name  : ' + orgName);
+    if (!username) {
+        res.json(getErrorMessage('\'username\''));
+        return;
+    }
+    if (!orgName) {
+        res.json(getErrorMessage('\'orgName\''));
+        return;
+    }
+    if (!role) {
+        res.json(getErrorMessage('\'role\''));
+        return;
+    }
+
+    var token = jwt.sign({
+        exp: Math.floor(Date.now() / 1000) + parseInt(constants.jwt_expiretime),
+        username: username,
+        orgName: orgName
+    }, app.get('secret'));
+
+    console.log(token)
+
+    let response = registerAndGerSecret(username, orgName, role);
+
+    logger.debug('-- returned from registering the username %s for organization %s and role %s', username, orgName, role);
+    if (response && typeof response !== 'string') {
+        logger.debug('Successfully registered the username %s for organization %s and role %s', username, orgName, role);
+        response.token = token;
+        res.json(response);
+    } else {
+        logger.debug('Failed to register the username %s for organization %s and role %s with::%s', username, orgName, role, response);
+        res.json({ success: false, message: response });
+    }
+
+});
+
+// Login and get jwt
+app.post('/users/login', async function (req, res) {
+    var username = req.body.username;
+    var orgName = req.body.orgName;
+    logger.debug('End point : /users');
+    logger.debug('User name : ' + username);
+    logger.debug('Org name  : ' + orgName);
+    if (!username) {
+        res.json(getErrorMessage('\'username\''));
+        return;
+    }
+    if (!orgName) {
+        res.json(getErrorMessage('\'orgName\''));
+        return;
+    }
+
+    var token = jwt.sign({
+        exp: Math.floor(Date.now() / 1000) + parseInt(constants.jwt_expiretime),
+        username: username,
+        orgName: orgName
+    }, app.get('secret'));
+
+    let isUserRegistered = isUserRegistered(username, orgName);
+
+    if (isUserRegistered) {
+        res.json({ success: true, message: { token: token } });
+
+    } else {
+        res.json({ success: false, message: `User with username ${username} is not registered with ${orgName}, Please register first.` });
+    }
+});
+
+const registerAndGerSecret = async (username, userOrg, role) => {
+    let ccp = await getCCP(userOrg)
+
+    const caURL = await getCaUrl(userOrg, ccp)
+    const ca = new FabricCAServices(caURL);
+
+    const walletPath = await getWalletPath(userOrg)
+    const wallet = await Wallets.newFileSystemWallet(walletPath);
+    console.log(`Wallet path: ${walletPath}`);
+
+    const userIdentity = await wallet.get(username);
+    if (userIdentity) {
+        console.log(`An identity for the user ${username} already exists in the wallet`);
+        var response = {
+            success: true,
+            message: username + ' enrolled Successfully',
+        };
+        return response
+    }
+
+    // Check to see if we've already enrolled the admin user.
+    let adminIdentity = await wallet.get('admin');
+    if (!adminIdentity) {
+        console.log('An identity for the admin user "admin" does not exist in the wallet');
+        await enrollAdmin(userOrg, ccp);
+        adminIdentity = await wallet.get('admin');
+        console.log("Admin Enrolled Successfully")
+    }
+
+    // build a user object for authenticating with the CA
+    const provider = wallet.getProviderRegistry().getProvider(adminIdentity.type);
+    const adminUser = await provider.getUserContext(adminIdentity, 'admin');
+    let secret;
+    try {
+        // Register the user, enroll the user, and import the new identity into the wallet.
+        secret = await ca.register({ affiliation: await getAffiliation(userOrg), enrollmentID: username, role: role}, adminUser);
+        // const secret = await ca.register({ affiliation: 'org1.department1', enrollmentID: username, role: 'client', attrs: [{ name: 'role', value: 'approver', ecert: true }] }, adminUser);
+
+    } catch (error) {
+        return error.message
+    }
+
+    var response = {
+        success: true,
+        message: username + ' enrolled Successfully',
+        secret: secret
+    };
+    return response
+
+}
+
+const isUserRegistered = async (username, userOrg) => {
+    const walletPath = await getWalletPath(userOrg)
+    const wallet = await Wallets.newFileSystemWallet(walletPath);
+    console.log(`Wallet path: ${walletPath}`);
+
+    const userIdentity = await wallet.get(username);
+    if (userIdentity) {
+        console.log(`An identity for the user ${username} exists in the wallet`);
+        return true
+    }
+    return false
+}
 
 
 
