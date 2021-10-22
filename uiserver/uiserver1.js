@@ -1,6 +1,8 @@
 var express = require('express');
 var bodyParser = require('body-parser');
-
+var jwt = require('jsonwebtoken')
+var expressJWT = require('express-jwt');
+var bearerToken = require('express-bearer-token');
 
 var app = express();
 var urlencodedParser = bodyParser.urlencoded({ extended: true });
@@ -13,6 +15,43 @@ const fs = require('fs');
 const helper = require('./helper')
 //const ccpPath = path.resolve(__dirname, '..', '..', 'test-network', 'organizations', 'peerOrganizations', 'org1.example.com', 'connection-org1.json');
   //      const ccp = JSON.parse(fs.readFileSync(ccpPath, 'utf8'));
+app.set('secret', 'thisismysecret');
+// app.use(expressJWT({
+//     secret: 'thisismysecret',
+//     algorithms: ['sha1', 'RS256', 'HS256'],
+// }).unless({
+//     path: ['/', '/registration', '/studentregistration', '/addCriteria', '/addCourse', '/upateCriteria', '/queryapplications']
+// }));
+app.use(bearerToken());
+app.use(function (req, res, next) {
+    console.log(' ------>>>>>> new request for %s', req.originalUrl);
+    if (!(req.originalUrl.indexOf('/studentonboarding') >= 0) || !(req.originalUrl.indexOf('/transferapplications') >= 0)) {
+        return next();
+    } 
+
+    var token = req.token;
+    jwt.verify(token, app.get('secret'), function (err, decoded) {
+        if (err) {
+            res.send({
+                success: false,
+                message: 'Failed to authenticate token. Make sure to include the ' +
+                    'token returned from /users call in the authorization header ' +
+                    ' as a Bearer token'
+            });
+            return;
+        } else {
+            // add the decoded user name and org name to the request object
+            // for the downstream code to use
+            req.username = decoded.username;
+            req.role = decoded.role;
+            req.orgname = decoded.orgName;
+            console.log(util.format('Decoded from JWT token: username - %s, orgname - %s, role - %s', decoded.username, decoded.orgName, decoded.role));
+            return next();
+        }
+    });
+});
+
+
 app.set("view engine","pug");
 
 app.get('/', function (req, res) {
@@ -322,7 +361,7 @@ app.post('/addapplication/', urlencodedParser, async function (req, res) {
         const network = await gateway.getNetwork(channelName);
 
         const contract = network.getContract(chaincodeName);
-        let applicationid = req.body.ApplicationID;
+        let applicationid = req.body.ApplicationNumber;
         let Name = req.body.Name;
         let DOB = req.body.DOB;
         let Gender = req.body.Gender;
@@ -519,12 +558,14 @@ app.post('/applicationtransfer', urlencodedParser, async function (req, res) {
     }
 });
 
-
 // Register and enroll user
-app.post('/register', async function (req, res) {
+app.post('/users', urlencodedParser, async function (req, res) {
     var username = req.body.username;
     var role = req.body.role;
     var orgName = req.body.orgname;
+    console.log('Username: '+username);
+    console.log('OrgName: '+orgName);
+    console.log('Role: '+role);
     // logger.debug('End point : /users');
     // logger.debug('User name : ' + username);
     // logger.debug('Org name  : ' + orgName);
@@ -542,22 +583,67 @@ app.post('/register', async function (req, res) {
     }
 
     var token = jwt.sign({
-        exp: Math.floor(Date.now() / 1000) + parseInt(constants.jwt_expiretime),
+        exp: Math.floor(Date.now() / 1000) + parseInt('jwt_expiretime'),
         username: username,
+        role: role,
+        orgName: orgName
+    }, app.get('secret'));
+
+    let response = await helper.getRegisteredUser(username, orgName, role, true);
+
+    console.log('-- returned from registering the username %s for organization %s and role %s', username, orgName, role);
+    if (response && typeof response !== 'string') {
+        console.log('Successfully registered the username %s for organization %s and role %s', username, orgName, role);
+        response.token = token;
+        res.json(response);
+    } else {
+        console.log('Failed to register the username %s for organization %s and role %s with::%s', username, orgName, role, response);
+        res.json({ success: false, message: response });
+    }
+
+});
+
+// Register and enroll user
+app.post('/register', urlencodedParser, async function (req, res) {
+    var username = req.body.username;
+    var role = req.body.role;
+    var orgName = req.body.orgname;
+    console.log('Username : '+username);
+    // logger.debug('End point : /users');
+    // logger.debug('User name : ' + username);
+    // logger.debug('Role : '+role)
+    // logger.debug('Org name  : ' + orgName);
+    if (!username) {
+        res.json(getErrorMessage('\'username\''));
+        return;
+    }
+    if (!orgName) {
+        res.json(getErrorMessage('\'orgName\''));
+        return;
+    }
+    if (!role) {
+        res.json(getErrorMessage('\'role\''));
+        return;
+    }
+
+    var token = jwt.sign({
+        exp: Math.floor(Date.now() / 1000) + parseInt('jwt_expiretime'),
+        username: username,
+        role: role,
         orgName: orgName
     }, app.get('secret'));
 
     console.log(token)
 
-    let response = registerAndGerSecret(username, orgName, role);
+    let response = helper.registerAndGerSecret(username, orgName, role);
 
-    logger.debug('-- returned from registering the username %s for organization %s and role %s', username, orgName, role);
+    console.log('-- returned from registering the username %s for organization %s and role %s', username, orgName, role);
     if (response && typeof response !== 'string') {
-        logger.debug('Successfully registered the username %s for organization %s and role %s', username, orgName, role);
+        console.log('Successfully registered the username %s for organization %s and role %s', username, orgName, role);
         response.token = token;
         res.json(response);
     } else {
-        logger.debug('Failed to register the username %s for organization %s and role %s with::%s', username, orgName, role, response);
+        console.log('Failed to register the username %s for organization %s and role %s with::%s', username, orgName, role, response);
         res.json({ success: false, message: response });
     }
 
@@ -595,56 +681,6 @@ app.post('/users/login', async function (req, res) {
     }
 });
 
-const registerAndGerSecret = async (username, userOrg, role) => {
-    let ccp = await getCCP(userOrg)
-
-    const caURL = await getCaUrl(userOrg, ccp)
-    const ca = new FabricCAServices(caURL);
-
-    const walletPath = await getWalletPath(userOrg)
-    const wallet = await Wallets.newFileSystemWallet(walletPath);
-    console.log(`Wallet path: ${walletPath}`);
-
-    const userIdentity = await wallet.get(username);
-    if (userIdentity) {
-        console.log(`An identity for the user ${username} already exists in the wallet`);
-        var response = {
-            success: true,
-            message: username + ' enrolled Successfully',
-        };
-        return response
-    }
-
-    // Check to see if we've already enrolled the admin user.
-    let adminIdentity = await wallet.get('admin');
-    if (!adminIdentity) {
-        console.log('An identity for the admin user "admin" does not exist in the wallet');
-        await enrollAdmin(userOrg, ccp);
-        adminIdentity = await wallet.get('admin');
-        console.log("Admin Enrolled Successfully")
-    }
-
-    // build a user object for authenticating with the CA
-    const provider = wallet.getProviderRegistry().getProvider(adminIdentity.type);
-    const adminUser = await provider.getUserContext(adminIdentity, 'admin');
-    let secret;
-    try {
-        // Register the user, enroll the user, and import the new identity into the wallet.
-        secret = await ca.register({ affiliation: await getAffiliation(userOrg), enrollmentID: username, role: role}, adminUser);
-        // const secret = await ca.register({ affiliation: 'org1.department1', enrollmentID: username, role: 'client', attrs: [{ name: 'role', value: 'approver', ecert: true }] }, adminUser);
-
-    } catch (error) {
-        return error.message
-    }
-
-    var response = {
-        success: true,
-        message: username + ' enrolled Successfully',
-        secret: secret
-    };
-    return response
-
-}
 
 const isUserRegistered = async (username, userOrg) => {
     const walletPath = await getWalletPath(userOrg)
@@ -659,7 +695,13 @@ const isUserRegistered = async (username, userOrg) => {
     return false
 }
 
-
+function getErrorMessage(field) {
+    var response = {
+        success: false,
+        message: field + ' field is missing or Invalid in the request'
+    };
+    return response;
+}
 
 
 

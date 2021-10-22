@@ -84,11 +84,14 @@ const getAffiliation = async (org) => {
         return null
 }
 
-const getRegisteredUser = async (username, userOrg, isJson) => {
+const getRegisteredUser = async (username, userOrg, role, isJson) => {
     let ccp = await getCCP(userOrg)
     console.log(ccp)
     const caURL = await getCaUrl(userOrg, ccp)
+    // const caURL = await getCaInfo(userOrg, ccp)
+    // const caTLSCACerts = caURL.tlsCACerts.pem;
     const ca = new FabricCAServices(caURL);
+    // const ca = new FabricCAServices(caURL.url, { trustedRoots: caTLSCACerts, verify: false }, caURL.caName);
     console.log(ca)
     const walletPath = await getWalletPath(userOrg)
     // console.log(walletPath)
@@ -108,7 +111,7 @@ const getRegisteredUser = async (username, userOrg, isJson) => {
 
     // Check to see if we've already enrolled the admin user.
     let adminIdentity = await wallet.get('admin');
-    console.log(adminIdentity)
+    // console.log(adminIdentity)
     if (!adminIdentity) {
         console.log('An identity for the admin user "admin" does not exist in the wallet');
         await enrollAdmin(userOrg, ccp);
@@ -119,33 +122,43 @@ const getRegisteredUser = async (username, userOrg, isJson) => {
     // build a user object for authenticating with the CA
     const provider = wallet.getProviderRegistry().getProvider(adminIdentity.type);
     const adminUser = await provider.getUserContext(adminIdentity, 'admin');
-    // console.log(adminUser)
+    console.log(adminUser)
     let secret
     console.log(username)
     console.log(await getAffiliation(userOrg))
     try {
         // Register the user, enroll the user, and import the new identity into the wallet.
-        secret = await ca.register({ affiliation: 'institute1', enrollmentID: username, role: 'client' }, adminUser);
-        console.log(secret)
-        // const secret = await ca.register({ affiliation: 'Institute1.department1', enrollmentID: username, role: 'client', attrs: [{ name: 'role', value: 'approver', ecert: true }] }, adminUser);
+        // secret = await ca.register({ affiliation: await getAffiliation(userOrg), enrollmentID: username, role: 'client' }, adminUser);
+        // console.log(secret)
+        const secret = await ca.register({ affiliation: await getAffiliation(userOrg), enrollmentID: username, role: 'client', attrs: [{ name: 'role', value: 'approver', ecert: true }] }, adminUser);
 
     } catch (error) {
         console.log(error)
         return error.message
     }
 
-    const enrollment = await ca.enroll({ enrollmentID: username, enrollmentSecret: secret });
+    const enrollment = await ca.enroll({ enrollmentID: username, enrollmentSecret: secret, attr_reqs: [{ name: "role", optimal: false }] });
     console.log(enrollment)
     // const enrollment = await ca.enroll({ enrollmentID: username, enrollmentSecret: secret, attr_reqs: [{ name: 'role', optional: false }] });
 
     let x509Identity;
-    if (userOrg == "Institute1") {
+    // if (userOrg == "Institute1") {
+    //     x509Identity = {
+    //         credentials: {
+    //             certificate: enrollment.certificate,
+    //             privateKey: enrollment.key.toBytes(),
+    //         },
+    //         mspId: 'Institute1MSP',
+    //         type: 'X.509',
+    //     };
+    // }
+    if (role == "student") {
         x509Identity = {
             credentials: {
                 certificate: enrollment.certificate,
                 privateKey: enrollment.key.toBytes(),
             },
-            mspId: 'Institute1MSP',
+            // mspId: 'Institute1MSP',
             type: 'X.509',
         };
     } else if (userOrg == "Institute2") {
@@ -175,7 +188,7 @@ const getRegisteredUser = async (username, userOrg, isJson) => {
             mspId: 'ManageralMSP',
             type: 'X.509',
         };
-    }
+    } 
 
 
 
@@ -293,7 +306,7 @@ const enrollAdmin = async (org) => {
     }
 }
 
-const registerAndGerSecret = async (username, userOrg) => {
+const registerAndGerSecret = async (username, userOrg, role) => {
     let ccp = await getCCP(userOrg)
 
     const caURL = await getCaUrl(userOrg, ccp)
@@ -303,6 +316,7 @@ const registerAndGerSecret = async (username, userOrg) => {
     const wallet = await Wallets.newFileSystemWallet(walletPath);
     console.log(`Wallet path: ${walletPath}`);
 
+    // await wallet.put('admin', x509Identity);
     const userIdentity = await wallet.get(username);
     if (userIdentity) {
         console.log(`An identity for the user ${username} already exists in the wallet`);
@@ -328,8 +342,8 @@ const registerAndGerSecret = async (username, userOrg) => {
     let secret;
     try {
         // Register the user, enroll the user, and import the new identity into the wallet.
-        secret = await ca.register({ affiliation: await getAffiliation(userOrg), enrollmentID: username, role: 'client' }, adminUser);
-        // const secret = await ca.register({ affiliation: 'Institute1.department1', enrollmentID: username, role: 'client', attrs: [{ name: 'role', value: 'approver', ecert: true }] }, adminUser);
+        secret = await ca.register({ affiliation: await getAffiliation(userOrg), enrollmentID: username, role: role}, adminUser);
+        // const secret = await ca.register({ affiliation: 'org1.department1', enrollmentID: username, role: 'client', attrs: [{ name: 'role', value: 'approver', ecert: true }] }, adminUser);
 
     } catch (error) {
         return error.message
